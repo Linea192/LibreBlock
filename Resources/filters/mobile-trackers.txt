@@ -1,0 +1,52 @@
+! LibreBlock built-in list: Mobile Trackers
+! Original rules authored for the LibreBlock project.
+! License: MIT (see LICENSE in the repository root).
+! This list is intentionally conservative. Pair it with remote
+! community lists for full coverage.
+||google-analytics.com^
+||analytics.google.com^
+||googletagmanager.com^
+||segment.io^
+||segment.com^
+||mixpanel.com^
+||amplitude.com^
+||hotjar.com^
+||fullstory.com^
+||mouseflow.com^
+||clarity.ms^
+||matomo.cloud^
+||stats.wp.com^
+||quantserve.com^
+||scorecardresearch.com^
+||chartbeat.com^
+||chartbeat.net^
+||newrelic.com^
+||nr-data.net^
+||yandex.ru/clck^
+||mc.yandex.ru^
+||histats.com^
+||statcounter.com^
+||addthis.com^
+||fingerprint.com^
+||fpjs.io^
+||ioam.de^
+||krxd.net^
+||adsymptotic.com^
+||liveramp.com^
+||rlcdn.com^
+||id5-sync.com^
+||adsco.re^
+||quantcast.mgr.consensu.org^
+||cmp.inmobi.com^
+||sourcepoint.mgr.consensu.org^
+||trustarc.com^
+/telemetry/
+/collect?v=1&
+/analytics.js
+/gtag/js?
+/beacon.gif?
+/pixel.gif?
+/track.gif?
+/tracking/*$script
+||metrics.$xmlhttprequest
+||logs.$domain,third-party

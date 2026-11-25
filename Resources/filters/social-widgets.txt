@@ -1,0 +1,39 @@
+! LibreBlock built-in list: Social Widgets & Buttons
+! Original rules authored for the LibreBlock project.
+! License: MIT (see LICENSE in the repository root).
+! This list is intentionally conservative. Pair it with remote
+! community lists for full coverage.
+||platform.twitter.com/widgets.js^
+||connect.facebook.net/*/sdk.js^
+||platform.instagram.com/en_US/embeds.js^
+||apis.google.com/js/plusone.js^
+||platform.linkedin.com/in.js^
+||widgets.pinterest.com/js/pinit.js^
+||assets.tumblr.com/widgets/share/*
+||reddit.com/button.js^
+||telegram.org/js/telegram-widget.js^
+||assets.tiktok.com/*/share.js^
+||buttons.github.io/buttons.js^
+||platform.vk.com/js/api/openapi.js^
+##.twitter-timeline
+##.twitter-tweet
+##.fb-like
+##.fb-share-button
+##.fb-post
+##.fb-page
+##.instagram-media
+##.pinterest-button
+##.linkedin-share
+##.share-buttons
+##.sharing-links
+##.social-share
+##.social-links
+##[class*='social-buttons']
+##[id*='social-sidebar']
+##.tiktok-embed
+##.vk-post
+##.telegram-post
+||disqus.com/embed.js^
+||disquscdn.com/next/embed/*
+##.disqus_thread
+##[id^='disqus_thread']
