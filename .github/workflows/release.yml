@@ -1,0 +1,142 @@
+name: Release
+
+# Builds LibreBlock on every version tag (v*), runs the compiler unit
+# tests, packages an unsigned IPA and attaches it to a GitHub Release.
+#
+# The IPA is unsigned: GitHub Actions has no Apple developer identity,
+# and sideloading tools (AltStore/SideStore, Scarlet, or Xcode itself)
+# sign it with the user's own free Apple ID at install time — the
+# standard flow for open-source sideloaded iOS apps.
+#
+# To cut a release:  git tag v1.0.0 && git push origin v1.0.0
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write   # required to create the Release and upload assets
+
+env:
+  XCODE_SCHEME: LibreBlock
+  SIMULATOR: platform=iOS Simulator,name=iPhone 16,OS=18.2
+
+jobs:
+  test:
+    name: Unit tests (rule compiler)
+    runs-on: macos-15
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install xcodegen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Run RuleCompiler unit tests
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -project LibreBlock.xcodeproj \
+            -scheme "$XCODE_SCHEME" \
+            -destination "$SIMULATOR" \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGN_IDENTITY= | xcbeautify --quiet
+
+  build-ipa:
+    name: Build unsigned IPA
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install xcodegen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Build for generic iOS device (unsigned)
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project LibreBlock.xcodeproj \
+            -scheme "$XCODE_SCHEME" \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGN_IDENTITY= \
+            CODE_SIGN_ENTITLEMENTS= \
+            AD_HOC_CODE_SIGNING_ALLOWED=YES \
+            ALLOW_PROVISIONING_NO | xcbeautify --quiet
+
+      - name: Package unsigned IPA
+        run: |
+          APP=$(find build/Build/Products -name 'LibreBlock.app' -type d | head -n1)
+          if [ -z "$APP" ]; then
+            echo "::error::LibreBlock.app not found in build products"
+            exit 1
+          fi
+          echo "Found app bundle: $APP"
+          mkdir -p build/Payload
+          cp -R "$APP" build/Payload/LibreBlock.app
+          cd build
+          zip -qry LibreBlock-unsigned.ipa Payload
+          ls -lh LibreBlock-unsigned.ipa
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: LibreBlock-unsigned-ipa
+          path: build/LibreBlock-unsigned.ipa
+          retention-days: 30
+
+  release:
+    name: Create GitHub Release
+    needs: [test, build-ipa]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download IPA artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: LibreBlock-unsigned-ipa
+          path: dist
+
+      - name: Prepare release notes
+        run: |
+          cat > dist/notes.md <<'EOF'
+          # LibreBlock ${{ github.ref_name }}
+
+          **Unsigned IPA — sign it with your own Apple ID before installing.**
+
+          ## How to install
+
+          1. Download `LibreBlock-unsigned.ipa` from the assets below.
+          2. Sign with your free Apple ID:
+             - **SideStore / AltStore**: sideload the IPA directly.
+             - **Xcode**: or open the source and build to your device (recommended for the 7-day signing window).
+             - Any signing service (Scarlet, etc.) also works.
+          3. After installing, enable all 7 LibreBlock extensions:
+             Settings → Safari → Extensions → allow each on your sites.
+
+          > Free Apple IDs must re-sign every 7 days. Paid accounts get a year.
+
+          Built from commit ${{ github.sha }}.
+          EOF
+          ls -lh dist
+
+      - name: Create release and upload IPA
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: LibreBlock ${{ github.ref_name }}
+          body_path: dist/notes.md
+          files: dist/LibreBlock-unsigned.ipa
+          fail_on_unmatched_files: true
