@@ -1,0 +1,22 @@
+! LibreBlock built-in list: NoCoin-style mining blocks (subset)
+! Original rules authored for the LibreBlock project.
+! License: MIT (see LICENSE in the repository root).
+! This list is intentionally conservative. Pair it with remote
+! community lists for full coverage.
+! Crypto-mining scripts
+||coinhive.com^
+||coin-hive.com^
+||cryptoloot.com^
+||minero.cc^
+||deepminer.*^
+||coinimp.com^
+||jscoinminer.com^
+/miner.js
+/mining/*.js
+/cryptonight*.js
+/coinhive.min.js
+! Drive-by download & exploit kit patterns
+/exploit-kit/*
+||malware-$script
+! Known safe-lists for banking protection are NOT included here;
+! use the remote Phishing Army list for full coverage.

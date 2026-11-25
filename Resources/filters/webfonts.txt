@@ -1,0 +1,12 @@
+! LibreBlock built-in list: Local Web Fonts
+! Original rules authored for the LibreBlock project.
+! License: MIT (see LICENSE in the repository root).
+! This list is intentionally conservative. Pair it with remote
+! community lists for full coverage.
+! Self-host or block remote fonts to speed up loading
+||fonts.googleapis.com^
+||fonts.gstatic.com^
+||use.fontawesome.com^
+||ka-f.fontawesome.com^
+||cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free^
+@@||fonts.googleapis.com^$domain=fonts.google.com
