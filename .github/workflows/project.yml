@@ -1,0 +1,212 @@
+name: LibreBlock
+options:
+  bundleIdPrefix: org.libreblock
+  deploymentTarget:
+    iOS: "16.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+    ENABLE_USER_SCRIPT_SANDBOXING: "YES"
+    DEAD_CODE_STRIPPING: "YES"
+    CODE_SIGN_STYLE: Automatic
+
+targets:
+  LibreBlock:
+    type: application
+    platform: iOS
+    sources:
+      - path: App
+      - path: Shared
+    resources:
+      - path: Resources/Assets.xcassets
+      # Folder reference: the filters/ directory ships as-is in the bundle.
+      - path: Resources/filters
+        type: folder
+      - path: Support/PrivacyInfo.xcprivacy
+    dependencies:
+      - target: AdsBlocker
+      - target: PrivacyBlocker
+      - target: SocialBlocker
+      - target: SafetyBlocker
+      - target: OthersBlocker
+      - target: CustomBlocker
+      - target: WebExtension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.libreblock.app
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        TARGETED_DEVICE_FAMILY: "1,2"
+        CODE_SIGN_ENTITLEMENTS: Support/LibreBlock.entitlements
+    info:
+      path: Support/Info.plist
+      properties:
+        CFBundleDisplayName: LibreBlock
+        CFBundleName: LibreBlock
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        LSApplicationCategoryType: public.app-category.productivity
+        CFBundleURLTypes:
+          - CFBundleURLName: org.libreblock.app
+            CFBundleURLSchemes:
+              - libreblock
+        ITSAppUsesNonExemptEncryption: false
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+    scheme:
+      testTargets:
+        - LibreBlockTests
+
+  LibreBlockTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources: [SharedTests]
+    dependencies:
+      - target: LibreBlock
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.libreblock.tests
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/LibreBlock.app/LibreBlock"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+
+  # ---------------------------------------------------------------------------
+  # Content blocker extensions (the "1. Ads" … "6. Custom" Safari toggles).
+  # Each is a tiny SFSafariContentBlocker extension whose RequestHandler loads
+  # the compiled rules that LibreBlock's engine writes to the shared
+  # App Group container.
+  # ---------------------------------------------------------------------------
+  AdsBlocker:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: AdsBlocker
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.libreblock.app.Ads
+        SKIP_INSTALL: "YES"
+        CODE_SIGN_ENTITLEMENTS: AdsBlocker/AdsBlocker.entitlements
+    info:
+      path: AdsBlocker/Info.plist
+      properties:
+        CFBundleDisplayName: 1. Ads
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.Safari.content-blocker
+
+  PrivacyBlocker:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: PrivacyBlocker
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.libreblock.app.Privacy
+        SKIP_INSTALL: "YES"
+        CODE_SIGN_ENTITLEMENTS: PrivacyBlocker/PrivacyBlocker.entitlements
+    info:
+      path: PrivacyBlocker/Info.plist
+      properties:
+        CFBundleDisplayName: 2. Privacy
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.Safari.content-blocker
+
+  SocialBlocker:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: SocialBlocker
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.libreblock.app.Social
+        SKIP_INSTALL: "YES"
+        CODE_SIGN_ENTITLEMENTS: SocialBlocker/SocialBlocker.entitlements
+    info:
+      path: SocialBlocker/Info.plist
+      properties:
+        CFBundleDisplayName: 3. Social
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.Safari.content-blocker
+
+  SafetyBlocker:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: SafetyBlocker
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.libreblock.app.Safety
+        SKIP_INSTALL: "YES"
+        CODE_SIGN_ENTITLEMENTS: SafetyBlocker/SafetyBlocker.entitlements
+    info:
+      path: SafetyBlocker/Info.plist
+      properties:
+        CFBundleDisplayName: 4. Safety
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.Safari.content-blocker
+
+  OthersBlocker:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: OthersBlocker
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.libreblock.app.Others
+        SKIP_INSTALL: "YES"
+        CODE_SIGN_ENTITLEMENTS: OthersBlocker/OthersBlocker.entitlements
+    info:
+      path: OthersBlocker/Info.plist
+      properties:
+        CFBundleDisplayName: 5. Others
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.Safari.content-blocker
+
+  CustomBlocker:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: CustomBlocker
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.libreblock.app.Custom
+        SKIP_INSTALL: "YES"
+        CODE_SIGN_ENTITLEMENTS: CustomBlocker/CustomBlocker.entitlements
+    info:
+      path: CustomBlocker/Info.plist
+      properties:
+        CFBundleDisplayName: 6. Custom
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.Safari.content-blocker
+
+  # Safari Web Extension: page block counter + quick status popup.
+  # Pure web resources; Safari loads it without a host executable.
+  WebExtension:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: WebExtension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.libreblock.app.WebExt
+        SKIP_INSTALL: "YES"
+    info:
+      path: WebExtension/Info.plist
+      properties:
+        CFBundleDisplayName: LibreBlock
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.Safari.web-extension
